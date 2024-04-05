@@ -1,0 +1,66 @@
+307. Range Sum Query - Mutable( SEGMENT TREE WITHOUT LAZY)
+
+https://leetcode.com/problems/range-sum-query-mutable/description/
+
+class NumArray {
+public:
+    vector<int>seg;
+    int  N;
+    void build(int idx,int l,int h,vector<int>&nums)
+    {
+        if(l==h)
+        {
+            seg[idx]=nums[l]; 
+            return ;
+        }
+        int mid=l+(h-l)/2;
+        build(2*idx+1,l,mid,nums);
+        build(2*idx+2,mid+1,h,nums);
+        seg[idx]=seg[2*idx+1]+seg[2*idx+2];
+    }
+    void upd(int idx,int pos,int l,int h,int val)
+    {
+        if(l==h)
+        {
+            seg[idx]=val; 
+            return ;
+        }
+        int mid=l+(h-l)/2;
+        if(pos<=mid)
+        {
+            upd(2*idx+1,pos,l,mid,val);
+        }
+        else
+        {
+            upd(2*idx+2,pos,mid+1,h,val);
+        }
+        seg[idx]=seg[2*idx+1]+seg[2*idx+2];
+    }
+    int query(int idx,int l,int h,int low,int high)
+    {
+        if(l>high || h<low)   return 0;
+        if(low<=l && high>=h)
+        {
+            return seg[idx];
+        }
+        int mid=l+(h-l)/2;
+        int left=query(2*idx+1,l,mid,low,high);
+        int right=query(2*idx+2,mid+1,h,low,high);
+        return left+right;
+    }
+
+    NumArray(vector<int>& nums) {
+        int n=nums.size();
+        seg.resize(4*n);
+        N=n;
+        build(0,0,n-1,nums);
+    }
+    
+    void update(int index, int val) {
+        upd(0,index,0,N-1,val);
+    }
+    
+    int sumRange(int left, int right) {
+        return query(0,0,N-1,left,right);
+    }
+};
