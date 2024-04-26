@@ -1,0 +1,69 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <numeric> // for gcd
+
+using namespace std;
+
+class Solution {
+public:
+    long long MOD = 1000000007;
+
+    long long ncr(long long n, long long r) {
+        long long p = 1, k = 1;
+        if (n - r < r) r = n - r;
+        if (r != 0) {
+            while (r) {
+                p *= n;
+                k *= r;
+                long long m = __gcd(p, k);
+                p /= m;
+                k /= m;
+                n--;
+                r--;
+            }
+        } else {
+            p = 1;
+        }
+        return p;
+    }
+
+    long long pow(long long n, long long q) {
+        long long ans = 1;
+        while (q) {
+            
+                ans = (ans * n) % MOD;
+                q--;
+           
+        }
+        return ans;
+    }
+
+    int countKSubsequencesWithMaxBeauty(string s, int k) {
+        vector<int> sub(26, 0);
+        int cnt=0;
+        for (char c : s) {
+            sub[c - 'a']++;
+        }
+        map<int, int, greater<int>> mp;
+        for (int i = 0; i < 26; i++) {
+            if (sub[i] != 0) {mp[sub[i]]++; cnt++;}
+        }
+        if(cnt<k)   return 0;
+        long long ans = 1;
+        for (auto itr : mp) {
+            if (itr.second <= k) {
+                long long comb = pow(itr.first, itr.second) % MOD;
+                ans = (ans * comb) % MOD;
+                k -= itr.second;
+            } else {
+                long long grp = ncr(itr.second, k) % MOD;
+                long long comb = pow(itr.first, k) % MOD;
+                ans = (ans * ((grp * comb) % MOD)) % MOD;
+                k = 0;
+            }
+            if (!k) break;
+        }
+        return ans;
+    }
+};
